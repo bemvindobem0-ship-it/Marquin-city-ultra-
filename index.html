@@ -1,10 +1,12 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marquin na City ULTRA</title>
+<title>Marquin City ULTRA</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
 
 <style>
 body{
@@ -28,9 +30,8 @@ body{
     width:60px;
     height:80px;
     position:absolute;
-    background-image:url("https://i.imgur.com/6XbK0Qp.png");
-    background-size:contain;
-    background-repeat:no-repeat;
+    background:lime;
+    border-radius:10px;
 }
 
 .pedestre{
@@ -105,7 +106,7 @@ let car = document.getElementById("car");
 let delivery = document.getElementById("delivery");
 let pedestres = document.querySelectorAll(".pedestre");
 
-let x=500,y=500;
+let x=100,y=100;
 let money=0;
 let fuel=100;
 
@@ -115,13 +116,11 @@ car.style.top=y+"px";
 delivery.style.left="1200px";
 delivery.style.top="800px";
 
-// espalhar pedestres
 pedestres.forEach(p=>{
     p.style.left=Math.random()*1800+"px";
     p.style.top=Math.random()*1800+"px";
 });
 
-// mover pedestres
 setInterval(()=>{
     pedestres.forEach(p=>{
         let px=parseFloat(p.style.left);
@@ -133,7 +132,6 @@ setInterval(()=>{
     });
 },100);
 
-// joystick
 let joystick=document.getElementById("joystick");
 let stick=document.getElementById("stick");
 let dragging=false;
@@ -194,6 +192,10 @@ function checkDelivery(){
         document.getElementById("money").innerText=money;
         document.getElementById("fuel").innerText=fuel;
     }
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
 }
 </script>
 
