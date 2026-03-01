@@ -1,0 +1,219 @@
+<!DOCTYPE html>  <html>  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Marquin na City ULTRA</title>  <style>  
+body{  
+    margin:0;  
+    overflow:hidden;  
+    background:#111;  
+    font-family:Arial;  
+    color:white;  
+}  
+  
+#map{  
+    width:2000px;  
+    height:2000px;  
+    position:relative;  
+    background:#222;  
+}  
+  
+.building{  
+    width:150px;  
+    height:150px;  
+    background:#555;  
+    position:absolute;  
+}  
+  
+#car{  
+    width:50px;  
+    height:80px;  
+    background:red;  
+    position:absolute;  
+    border-radius:10px;  
+}  
+  
+.police{  
+    width:50px;  
+    height:80px;  
+    background:blue;  
+    position:absolute;  
+    border-radius:10px;  
+}  
+  
+#delivery{  
+    width:40px;  
+    height:40px;  
+    background:yellow;  
+    position:absolute;  
+    border-radius:50%;  
+}  
+  
+#ui{  
+    position:fixed;  
+    top:10px;  
+    left:10px;  
+    background:rgba(0,0,0,0.5);  
+    padding:10px;  
+    border-radius:10px;  
+}  
+  
+.controls{  
+    position:fixed;  
+    bottom:10px;  
+    width:100%;  
+    text-align:center;  
+}  
+  
+button{  
+    width:60px;  
+    height:60px;  
+    margin:3px;  
+    border-radius:50%;  
+    border:none;  
+    font-size:18px;  
+}  
+</style>  </head>  <body>  <div id="ui">  
+💰 <span id="money">0</span> |  
+⛽ <span id="fuel">100</span> |  
+⭐ Procurado: <span id="wanted">0</span> |  
+🏁 Fase: <span id="level">1</span>  
+</div>  <div id="map">  
+<div id="car"></div>  
+<div id="delivery"></div>  
+</div>  <div class="controls">  
+<button onclick="move('up')">⬆️</button><br>  
+<button onclick="move('left')">⬅️</button>  
+<button onclick="move('down')">⬇️</button>  
+<button onclick="move('right')">➡️</button>  
+<button onclick="changeCar()">🚗</button>  
+<button onclick="shop()">🏪</button>  
+<button onclick="playMusic()">🎵</button>  
+</div>  <script>  
+let car=document.getElementById("car");  
+let map=document.getElementById("map");  
+let delivery=document.getElementById("delivery");  
+  
+let x=500,y=500;  
+let speed=15;  
+let money=0;  
+let fuel=100;  
+let wanted=0;  
+let level=1;  
+  
+car.style.left=x+"px";  
+car.style.top=y+"px";  
+  
+delivery.style.left="1200px";  
+delivery.style.top="800px";  
+  
+// Criar prédios  
+for(let i=0;i<15;i++){  
+ let b=document.createElement("div");  
+ b.className="building";  
+ b.style.left=Math.random()*1800+"px";  
+ b.style.top=Math.random()*1800+"px";  
+ map.appendChild(b);  
+}  
+  
+let policeList=[];  
+  
+function spawnPolice(){  
+ let p=document.createElement("div");  
+ p.className="police";  
+ p.style.left=Math.random()*1800+"px";  
+ p.style.top=Math.random()*1800+"px";  
+ map.appendChild(p);  
+ policeList.push(p);  
+}  
+  
+function move(dir){  
+ if(fuel<=0)return;  
+  
+ if(dir=="up")y-=speed;  
+ if(dir=="down")y+=speed;  
+ if(dir=="left")x-=speed;  
+ if(dir=="right")x+=speed;  
+  
+ fuel-=1;  
+  
+ car.style.left=x+"px";  
+ car.style.top=y+"px";  
+  
+ document.getElementById("fuel").innerText=fuel;  
+  
+ checkDelivery();  
+}  
+  
+function checkDelivery(){  
+ let dx=parseInt(delivery.style.left);  
+ let dy=parseInt(delivery.style.top);  
+  
+ if(Math.abs(dx-x)<40 && Math.abs(dy-y)<40){  
+   money+=100;  
+   wanted+=1;  
+   level+=1;  
+   fuel=100;  
+  
+   delivery.style.left=Math.random()*1800+"px";  
+   delivery.style.top=Math.random()*1800+"px";  
+  
+   spawnPolice();  
+  
+   updateUI();  
+ }  
+}  
+  
+function updateUI(){  
+ document.getElementById("money").innerText=money;  
+ document.getElementById("wanted").innerText=wanted;  
+ document.getElementById("level").innerText=level;  
+ document.getElementById("fuel").innerText=fuel;  
+}  
+  
+function policeChase(){  
+ policeList.forEach(p=>{  
+   let px=parseInt(p.style.left);  
+   let py=parseInt(p.style.top);  
+  
+   if(px<x)px+=2+wanted;  
+   if(px>x)px-=2+wanted;  
+   if(py<y)py+=2+wanted;  
+   if(py>y)py-=2+wanted;  
+  
+   p.style.left=px+"px";  
+   p.style.top=py+"px";  
+  
+   if(Math.abs(px-x)<40 && Math.abs(py-y)<40){  
+     alert("🚓 Preso! Game Over.");  
+     location.reload();  
+   }  
+ });  
+}  
+  
+setInterval(policeChase,100);  
+  
+function changeCar(){  
+ let colors=["red","green","purple","orange","black"];  
+ car.style.background=colors[Math.floor(Math.random()*colors.length)];  
+}  
+  
+function shop(){  
+ let opt=prompt("1-Gasolina 50$\n2-Reduz Procurado 100$");  
+ if(opt==1 && money>=50){  
+   money-=50;  
+   fuel=100;  
+ }  
+ if(opt==2 && money>=100){  
+   money-=100;  
+   wanted=0;  
+ }  
+ updateUI();  
+}  
+  
+function playMusic(){  
+ let audio=new Audio("https://www.soundjay.com/button/sounds/button-3.mp3");  
+ audio.play();  
+}  
+</script>  </body>  
+  </html>
